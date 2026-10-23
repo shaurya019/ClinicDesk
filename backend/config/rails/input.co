@@ -1,0 +1,45 @@
+# ---------------------------------------------------------------------------
+# Input rails written in Colang 1.0. They run BEFORE the main LLM.
+#
+# Colang basics used here:
+#   define subflow <name>   a reusable flow; input/output rails are subflows
+#   $user_message           the current user text (set by NeMo for input rails)
+#   $var = <expression>     assign a variable (Python-like expressions)
+#   if / else               branching
+#   bot <message>           send a message defined with "define bot"
+#   stop                    end processing: nothing after this runs (no LLM call)
+#
+# Indentation matters, like Python. Comments start with #.
+# ---------------------------------------------------------------------------
+
+# Safety rail: for possible emergencies, answer instantly with the emergency
+# number. This must never depend on an LLM being up, fast, or "in the mood".
+#
+# Note: Colang 1.0 expressions run in a restricted evaluator (no lists, no
+# loops), so keyword checks are written as "or" chains. Project 3 moves this
+# kind of logic into a Python custom action.
+define subflow check emergency
+  $text = $user_message.lower()
+  if "chest pain" in $text or "can't breathe" in $text or "cannot breathe" in $text or "stroke" in $text
+    bot inform emergency
+    stop
+  if "unconscious" in $text or "heavy bleeding" in $text or "seizure" in $text or "overdose" in $text
+    bot inform emergency
+    stop
+  if "suicid" in $text or "kill myself" in $text or "end my life" in $text
+    bot inform emergency
+    stop
+
+# Security rail: a cheap keyword screen for copy-pasted injection attempts.
+# It is deliberately simple; the LLM-based "self check input" catches paraphrases.
+define subflow check injection phrases
+  $text = $user_message.lower()
+  if "ignore previous instructions" in $text or "ignore all previous" in $text or "ignore your instructions" in $text
+    bot refuse instruction override
+    stop
+  if "disregard your rules" in $text or "system prompt" in $text or "developer mode" in $text
+    bot refuse instruction override
+    stop
+  if "do anything now" in $text or "you are now dan" in $text
+    bot refuse instruction override
+    stop

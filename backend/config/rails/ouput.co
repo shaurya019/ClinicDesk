@@ -1,0 +1,17 @@
+# ---------------------------------------------------------------------------
+# Output rails written in Colang 1.0. They run AFTER the main LLM and BEFORE
+# the user sees the answer.
+#
+#   $bot_message   the reply the LLM just generated (set by NeMo for output rails)
+#
+# When an output rail says "bot ..." + "stop", the LLM's reply is replaced.
+# ---------------------------------------------------------------------------
+
+# Canary rail: config.yml hides a marker in the instructions. If the marker
+# shows up in an answer, the model is leaking its instructions, whatever
+# trick the user used. Deterministic, so it works even if the LLM self check
+# is fooled.
+define subflow check canary leak
+  if "INTERNAL-CANARY-7731" in $bot_message or "canary-7731" in $bot_message.lower()
+    bot refuse to respond
+    stop

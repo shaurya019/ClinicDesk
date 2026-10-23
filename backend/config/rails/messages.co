@@ -1,0 +1,19 @@
+# ---------------------------------------------------------------------------
+# Bot messages (Colang 1.0).
+#
+# "define bot <name>" declares a canned message. When a flow says
+# "bot refuse to respond", NeMo sends this exact text: no LLM call, so the
+# wording of a refusal is fixed, reviewed, and can't be manipulated.
+#
+# Overriding "refuse to respond" changes the message used by the built-in
+# self check rails too.
+# ---------------------------------------------------------------------------
+
+define bot refuse to respond
+  "I'm the front-desk assistant for Sunrise Family Clinic, so I can only help with appointments, timings, doctors, fees, insurance, lab reports and directions. For health concerns, please book a doctor: 080-4567-1200."
+
+define bot inform emergency
+  "This sounds like it could be an emergency. Please call 108 (ambulance) right now or go to the nearest hospital emergency department. Don't wait for an appointment. If you are having thoughts of harming yourself, you can also call Tele-MANAS on 14416 (free, 24x7)."
+
+define bot refuse instruction override
+  "I can't change how I work, but I'm happy to help with appointments, timings, doctors or fees at Sunrise Family Clinic."
